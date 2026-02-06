@@ -1,9 +1,8 @@
+from django.db.models import Count, Q
 import random
 from django.contrib import messages
 from django.shortcuts import redirect, render
-from rest_framework import status
-from rest_framework.response import Response
-from core.models import Follow, LikePost, Post, User, Profile
+from core.models import Follow, LikePost, Post, Tag, User, Profile
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 
@@ -11,34 +10,28 @@ from django.contrib.auth.decorators import login_required
 def home(request):
     userprofile=Profile.objects.get(user_id=request.user.pk)
 
-    following_list = []
-    feed_post = []
-
-    following_obj = Follow.objects.filter(username=userprofile).values_list('followperson', flat=True)
-    feed_post = Post.objects.filter(profile_id__in=following_obj).order_by('-created_at')
-
-    # for follower in following_obj:
-    #     following_list.append(follower.followperson)
-    
-    # for followingperson in following_list:
-    #     feed_list = Post.objects.filter(profile_id=followingperson)
-    #     feed_post.append(feed_list)
-
-
-    # following_profiles = Follow.objects.filter(
-    # username=userprofile
-    # ).values_list('followperson', flat=True)
-
-    # feed_post = Post.objects.filter(
-    #     profile__in=following_profiles
-    # ).order_by('-created_at')
-
-    # allusers = User.objects.all()
-    # sugg_list = [x for x in list(allusers) if (x not in list(following_list))] 
-    # final_sugg_list = [x for x in list(sugg_list) if (x not in list(userprofile))]
-    # random.shuffle(final_sugg_list)
-
+    #custom feed by interest
     followed_user_ids = Follow.objects.filter(username=userprofile).values_list('followperson__user_id', flat=True)
+
+    liked_posts_ids = list(LikePost.objects.filter(username=request.user.username).order_by('-liked_at').values_list('post_id', flat=True)[:50])
+    liked_posts = Post.objects.filter(id__in=liked_posts_ids)
+    #since there is a many to many rel btw tags and posts, post model has a tags field and related name is posts to tag model will refer as posts so filter all the (post, tag) where the post is in liked post and store unique ones means for each post, tag the post will be seen if it is there in liked posts if yes that tag corresponding to it is taken and stored uniquely
+    interested_tags = Tag.objects.filter(posts__in=liked_posts).distinct()
+    #removing users own posts and posts the user has already liked 
+    user_recommendation_feed =  Post.objects.filter(
+        profile_id__user_id__in=followed_user_ids
+    ).exclude(
+        profile_id=request.user.id
+    ).exclude(
+        id__in=liked_posts_ids
+    ).annotate(
+        tag_match_score=Count(
+            'tags',
+            filter=Q(tags__in=interested_tags),
+            distinct=True
+        )
+    ).order_by('-tag_match_score','-created_at')
+
     suggested_users = Profile.objects.exclude(user_id__in=followed_user_ids).exclude(user_id=request.user.id)
 
     suggested_users = list(suggested_users)
@@ -46,7 +39,7 @@ def home(request):
 
     context = {
         'userprofile':userprofile,
-        'feed_post':feed_post,
+        'user_recommendation_feed':user_recommendation_feed,
         'final_sugg_list':suggested_users
     }
 
@@ -140,11 +133,14 @@ def upload(request, pk):
         if request.FILES.get('postimage'):
             image = request.FILES.get('postimage')
             caption = request.POST.get('caption')
+            selected_tag_ids = request.POST.getlist('tags')
             post = Post.objects.create(profile_id=profile, image=image, caption=caption)
+            post.tags.set(selected_tag_ids)
             post.save()
             return redirect('profile', pk=request.user.id)
     else:
-        return render(request, 'upload.html')
+        tags = Tag.objects.all()
+        return render(request, 'upload.html', {'tags':tags})
 
 @login_required(login_url='signin')
 def profile(request, pk):
@@ -156,7 +152,6 @@ def profile(request, pk):
     is_following = Follow.objects.filter(username=user_obj , followperson=profile).exists()
 
     context={
-        # 'user_obj':user_obj,
         'profile':profile,
         'profile_posts':profile_posts,
         'profile_posts_count':profile_posts_count,
@@ -186,15 +181,11 @@ def likepost(request):
 
 @login_required(login_url='signin')
 def follow(request):
-    # print('follow hit')
     user_id=request.user.id
     followperson_id=int(request.GET.get('followperson_id'))
 
     user_obj = Profile.objects.get(user_id=user_id)
     followperson_obj= Profile.objects.get(user_id=followperson_id)
-
-    # if user_id == followperson_id:
-    #     return redirect('profile', pk=user_id)
 
     follow_obj=Follow.objects.filter(username=user_obj, followperson=followperson_obj).first()
 

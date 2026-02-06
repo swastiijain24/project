@@ -206,7 +206,7 @@
 
             <!-- left sidebar-->
             <div class="space-y-5 flex-shrink-0 lg:w-7/12">
-                {% for post in feed_post %}
+                {% for post in user_recommendation_feed %}
                 <!-- post 1-->
                 <div class="bg-white shadow rounded-md  -mx-2 lg:mx-0">
 
@@ -319,8 +319,15 @@
                             </div>
 
                         </div>
+                       
                         <div>
                             <h2>{{post.caption}}</h2>
+                        </div>
+                        <hr>
+                        <div>
+                            {% for tag in post.tags.all %}
+                            <h2>{{tag.name}}</h2>
+                            {%endfor%}
                         </div>
                         <div class="border-t pt-4 space-y-4 ">
                             <div class="flex">
