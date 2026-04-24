@@ -1,176 +1,220 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings | {{ user.first_name }}</title>
     <link href="{% static 'assets/images/favicon.png' %}" rel="icon" type="image/png">
-    <title>Settings</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{% static 'assets/css/icons.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/uikit.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/tailwind.css' %}">
 
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'cssfiles/settings.css' %}">
 </head>
 
-<body>
-    <div class="container m-auto">
-
-        <h1 class="text-2xl leading-none text-gray-900 tracking-tight mt-3"><a href="{% url 'index' %}">Home </a>/ ⚙️ Account Settings for {{user.first_name}} </h1>
-        <ul class="mt-5 -mr-3 flex-nowrap lg:overflow-hidden overflow-x-scroll uk-tab">
-            <li class="uk-active"><a href="{% url 'settings' user.id %}">General</a></li>
-            <li><a href="{% url 'profile' user.id %}">Profile</a></li>
-            <li><a href="#">Notification</a></li>
-            <li><a href="#">Social links</a></li>
-            <li><a href="#">Security</a></li>
-        </ul>
-        <!-- <br>
-        <hr> -->
-        <div class="grid lg:grid-cols-3 mt-12 gap-8">
-            <div>
-                <h3 class="text-xl mb-2"> Information </h3>
-                
-                <p></p>
+<body class="settings-page">
+    <!-- Header -->
+    <div class="settings-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'index' %}"><i class="bi bi-house me-1"></i>Home</a>
+                <span>/</span>
+                <span>Settings</span>
             </div>
-            <div class="bg-white rounded-md lg:shadow-lg shadow col-span-2">
-                <form action="" method="post" enctype="multipart/form-data" >
-                 {% csrf_token %}
-                <div class="grid grid-cols-2 gap-3 lg:p-6 p-4">
-            
-                    <div class="col-span-2">
-                        <img height="100" width="100"  src="{{profile.profileimg.url}}" alt=""/>
-                    </div>
-                     <div>
-                        <label for=""> Profile Image</label>
-                        <input type="file" placeholder="Choose from device" value="" name="profileimg" class="shadow-none bg-gray-100">
-                    </div>
-                     <div>
-                        <label for=""> Background Image</label>
-                        <input type="file" placeholder="Choose from device" value="" name="bgimg" class="shadow-none bg-gray-100">
-                    </div>
-                     <div>
-                        <label for=""> First name</label>
-                        <input type="text" placeholder="First Name" value="{{user.first_name}}" name="firstname" class="shadow-none bg-gray-100">
-                    </div>
-                    <div>
-                        <label for=""> Last name</label>
-                        <input type="text" placeholder="Last Name" value="{{user.last_name}}" name="lastname" class="shadow-none bg-gray-100">
-                    </div>
-                    <div class="col-span-2">
-                        <label for="about">Bio</label>
-                        <textarea id="about" rows="3" name="bio" class="shadow-none bg-gray-100">{{profile.bio}}</textarea>
-                    </div>
-                    <div class="col-span-2">
-                        <label for="">Location</label>
-                        <input type="text" placeholder="" value="{{profile.location}}" name="location"  class="shadow-none bg-gray-100">
-                    </div>
-                    <div>
-                        <label for="">Working at</label>
-                        <input type="text" placeholder="" value="{{profile.workingat}}" name="workingat" class="shadow-none bg-gray-100">
-                    </div>
-                     <div>
-                        <label for="">Education</label>
-                        <input type="text" placeholder="University/School" name="education"  value="{{profile.education}}" class="shadow-none bg-gray-100">
-                    </div>
-                    
-                   
-                </div>
-                <div class="bg-gray-10 p-6 pt-0 flex justify-end space-x-3">
-                    <button class="p-2 px-4 rounded bg-gray-50 text-red-500"> Cancel </button>
-                    <button type="submit" class="button bg-blue-700"> Save </button>
-                </div>
-            </form>
-
-            </div>
-
-            <!-- <div>
-                <h3 class="text-xl mb-2"> Privacy</h3>
-                <p> </p>
-            </div> -->
-            <!-- <div class="bg-white rounded-md lg:shadow-lg shadow lg:p-6 p-4 col-span-2">
-
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4> Who can follow me ?</h4>
-                            <div> </div>
-                        </div>
-                        <div class="switches-list -mt-8 is-large">
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox"><span class="switch-button"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4> Show my activities ?</h4>
-                            <div> </div>
-                        </div>
-                        <div class="switches-list -mt-8 is-large">
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox" checked><span class="switch-button"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4> Search engines?</h4>
-                            <div> </div>
-                        </div>
-                        <div class="switches-list -mt-8 is-large">
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox"><span class="switch-button"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4> Allow Commenting?</h4>
-                            <div> </div>
-                        </div>
-                        <div class="switches-list -mt-8 is-large">
-                            <div class="switch-container">
-                                <label class="switch"><input type="checkbox"><span class="switch-button"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div> xxxxxxx -->
-            <br>
-
+            <h1>⚙️ Account Settings</h1>
         </div>
-
     </div>
 
+    <!-- Main Content -->
+    <div class="container settings-container">
+        <!-- Navigation Tabs -->
+        <nav class="settings-nav">
+            <a href="{% url 'settings' user.id %}" class="nav-tab active">
+                <i class="bi bi-person me-2"></i>General
+            </a>
+            <a href="{% url 'profile' user.id %}" class="nav-tab">
+                <i class="bi bi-card-heading me-2"></i>Profile
+            </a>
+            <a href="#" class="nav-tab">
+                <i class="bi bi-bell me-2"></i>Notification
+            </a>
+            <a href="{% url 'social_links' user.id %}" class="nav-tab">
+                <i class="bi bi-link-45deg me-2"></i>Social Links
+            </a>
+        </nav>
+
+        <div class="row">
+            <!-- Main Form -->
+            <div class="col-lg-8">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h2>Profile Information</h2>
+                        <p>Update your personal details and profile settings</p>
+                    </div>
+
+                    {% if messages %}
+                    <div class="px-4 pt-3">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }} mb-2" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="card-body">
+                            <!-- Profile Image Section -->
+                            <div class="profile-image-section">
+                                <img src="{{ profile.profileimg.url }}" alt="Profile" class="current-avatar"
+                                    id="avatarPreview">
+                                <div class="avatar-upload">
+                                    <h4>Profile Picture</h4>
+                                    <p>JPG, PNG or GIF. Max size 5MB</p>
+                                    <input type="file" name="profileimg" class="file-input" id="profileImgInput"
+                                        accept="image/*">
+                                </div>
+                            </div>
+
+                            <!-- Background Image -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-image me-2"></i>Background Image
+                                </label>
+                                <input type="file" name="bgimg" class="file-input" accept="image/*">
+                            </div>
+
+                            <!-- Name Row -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="firstname" class="form-control"
+                                        value="{{ user.first_name }}" placeholder="Enter your first name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="lastname" class="form-control" value="{{ user.last_name }}"
+                                        placeholder="Enter your last name">
+                                </div>
+                            </div>
+
+                            <!-- Bio -->
+                            <div class="form-group">
+                                <label class="form-label">Bio</label>
+                                <textarea name="bio" class="form-control" rows="3"
+                                    placeholder="Tell us about yourself...">{{ profile.bio }}</textarea>
+                            </div>
+
+                            <div class="ai-helper-box">
+                                <div>
+                                    <h4><i class="bi bi-stars me-2"></i>GenAI Resume Assistant</h4>
+                                    <p>Generate a polished summary, tagline, and skills from your profile and posts.</p>
+                                </div>
+                                <a href="{% url 'generate_ai_profile' user.id %}" class="btn btn-ai-generate">
+                                    <i class="bi bi-magic"></i>
+                                    Generate with AI
+                                </a>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-lightning-charge me-2"></i>AI Tagline
+                                </label>
+                                <input type="text" name="ai_tagline" class="form-control"
+                                    value="{{ profile.ai_tagline }}"
+                                    placeholder="Your AI-generated professional tagline will appear here">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-person-vcard me-2"></i>AI About (Resume Summary)
+                                </label>
+                                <textarea name="ai_about" class="form-control" rows="4"
+                                    placeholder="AI-generated resume-ready summary">{{ profile.ai_about }}</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-list-check me-2"></i>AI Skills
+                                </label>
+                                <input type="text" name="ai_skills" class="form-control"
+                                    value="{{ profile.ai_skills }}"
+                                    placeholder="Comma-separated key skills">
+                            </div>
+
+                            <!-- Location -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-geo-alt me-2"></i>Location
+                                </label>
+                                <input type="text" name="location" class="form-control" value="{{ profile.location }}"
+                                    placeholder="Where are you based?">
+                            </div>
+
+                            <!-- Work & Education Row -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="bi bi-briefcase me-2"></i>Working At
+                                    </label>
+                                    <input type="text" name="workingat" class="form-control"
+                                        value="{{ profile.workingat }}" placeholder="Company name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="bi bi-mortarboard me-2"></i>Education
+                                    </label>
+                                    <input type="text" name="education" class="form-control"
+                                        value="{{ profile.education }}" placeholder="University/School">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="button-group">
+                            <a href="{% url 'index' %}" class="btn btn-cancel">
+                                <i class="bi bi-x-lg"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-save">
+                                <i class="bi bi-check-lg"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-    </div>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Custom JavaScript -->
+    <script>
+        // Profile image preview
+        const profileImgInput = document.getElementById('profileImgInput');
+        const avatarPreview = document.getElementById('avatarPreview');
 
-
-
-    <!-- Scripts
-    ================================================== -->
-    <script src="{% static 'assets/js/tippy.all.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'assets/js/uikit.js' %}"></script>
-    <script src="{% static 'assets/js/simplebar.js' %}"></script>
-    <script src="{% static 'assets/js/custom.js' %}"></script>
-
-
-    <script src="{% static '../../unpkg.com/ionicons%405.2.3/dist/ionicons.js' %}"></script>
+        profileImgInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    avatarPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 </body>
 
 </html>

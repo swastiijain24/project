@@ -3,6 +3,7 @@ import random
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from core.models import Follow, LikePost, Post, Tag, User, Profile
+from core.services import generate_resume_ai_content
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 
@@ -110,6 +111,9 @@ def settings(request, pk):
         firstname = request.POST.get('firstname')
         lastname = request.POST.get('lastname')
         bio = request.POST.get('bio')
+        ai_about = request.POST.get('ai_about')
+        ai_tagline = request.POST.get('ai_tagline')
+        ai_skills = request.POST.get('ai_skills')
         location = request.POST.get('location')
         workingat = request.POST.get('workingat')
         education = request.POST.get('education')
@@ -120,11 +124,34 @@ def settings(request, pk):
         user.save()
 
         profile.bio = bio
+        profile.ai_about = ai_about
+        profile.ai_tagline = ai_tagline
+        profile.ai_skills = ai_skills
         profile.location = location
         profile.workingat = workingat
         profile.education = education
         profile.save()
     return render(request, 'settings.html', {'profile':profile})
+
+
+@login_required(login_url='signin')
+def generate_ai_profile(request, pk):
+    profile = Profile.objects.get(user_id=pk)
+
+    if request.user.id != profile.user_id.id:
+        messages.error(request, 'You can only generate AI content for your own profile.')
+        return redirect('settings', pk=pk)
+
+    recent_posts = Post.objects.filter(profile_id=profile).order_by('-created_at')[:8]
+    generated = generate_resume_ai_content(profile, recent_posts)
+
+    profile.ai_about = generated.get('about', '')
+    profile.ai_tagline = generated.get('tagline', '')
+    profile.ai_skills = generated.get('skills', '')
+    profile.save()
+
+    messages.success(request, 'AI profile content generated. Review and save any edits you want.')
+    return redirect('settings', pk=pk)
 
 @login_required(login_url='signin')
 def upload(request, pk):
@@ -202,3 +229,23 @@ def follow(request):
         user_obj.save()
         followperson_obj.save()
     return redirect('profile', pk=followperson_id)
+
+@login_required(login_url='signin')
+def social_links(request, pk):
+    profile = Profile.objects.get(user_id=pk)
+    if request.method == 'POST':
+        instagram = request.POST.get('instagram')
+        linkedin = request.POST.get('linkedin')
+        github = request.POST.get('github')
+        profile.instagram = instagram
+        profile.linkedin = linkedin
+        profile.github = github
+        profile.save()  
+    return render(request, 'social_links.html', {'profile':profile})    
+
+@login_required(login_url='signin')
+def deletepost(request):
+    post_id = request.GET.get('post_id')
+    post = Post.objects.get(id=post_id)
+    post.delete()
+    return redirect('profile', pk=request.user.id)  
